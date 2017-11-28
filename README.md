@@ -2,6 +2,8 @@
 A custom element that encapsulates any Vaadin `Connector`.
 This is intended as a proof of concept for reusing current Vaadin connectors together with Vaadin Flow.
 
+See https://github.com/Legioth/connector-element/blob/master/src/main/webapp/index.html for a usage example.
+
 ## Element API
 The GWT module exports a custom element, `<custom-element>`, with one required attribute.
 * `connector` should be set to the fully qualified name of the corresponding `AbstractComponentConnector` implementation, e.g. `com.vaadin.ui.Button`.
