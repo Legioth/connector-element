@@ -5,12 +5,12 @@ This is intended as a proof of concept for reusing current Vaadin connectors tog
 See https://github.com/Legioth/connector-element/blob/master/src/main/webapp/index.html for a usage example.
 
 ## Element API
-The GWT module exports a custom element, `<custom-element>`, with one required attribute.
+The GWT module exports a custom element, `<connector-element>`, with one required attribute.
 * `connector` should be set to the fully qualified name of the corresponding `AbstractComponentConnector` implementation, e.g. `com.vaadin.ui.Button`.
 
 ### Shared state
 Any other attribute or property will be mapped to a correspondingly named shared state field.
-For instance `<custom-element connector="com.vaadin.ui.Button" caption="Click me!"></custom-element>` will correspond to setting the same value to the `caption` property in `ButtonState`.
+For instance `<connector-element connector="com.vaadin.ui.Button" caption="Click me!"></connector-element>` will correspond to setting the same value to the `caption` property in `ButtonState`.
 Attribute values are only checked once when the custom element gets attached, but changes to the corresponding JavaScript property will be discovered immediately and send a corresponding `StateChangeEvent` to the connector implementation.
 
 ### Client to server RPC
