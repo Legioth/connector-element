@@ -29,6 +29,7 @@ This function expects three parameters:
 
 ## Known limitations
 * No child connector support
+* `LayoutManager` functionality is not properly integrated
 * Only supports connectors with `LoadStyle.EAGER` (which is the default).
 * Only reacts to property changes but no attribute changes
 * No support for Vaadin 6 style communication with `updateFromUIDL` and `updateVariable`.
