@@ -1,6 +1,9 @@
 package com.github.legioth.connectorelement.client;
 
 import com.google.gwt.dom.client.Element;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.ConnectorMap;
+import com.vaadin.client.ServerConnector;
 import com.vaadin.client.communication.JsonEncoder;
 import com.vaadin.client.communication.ServerRpcQueue;
 import com.vaadin.client.metadata.Method;
@@ -13,15 +16,9 @@ import elemental.json.JsonArray;
 import elemental.json.JsonValue;
 
 public class EventServerRpcQueue extends ServerRpcQueue {
-    private Element element;
-
-    public void setTargetElement(Element element) {
-        this.element = element;
-    }
-
     @Override
     public void add(MethodInvocation invocation, boolean lastOnly) {
-        assert element != null : "EventServerRpcQueue not initialized";
+        assert connection != null : "EventServerRpcQueue not initialized";
 
         Type[] parameterTypes = null;
         try {
@@ -44,6 +41,13 @@ public class EventServerRpcQueue extends ServerRpcQueue {
 
         RpcEvent event = RpcEvent.create(invocation.getInterfaceName(),
                 invocation.getMethodName(), arguments);
+
+        // Find <connector-element> instance to fire from
+        ServerConnector connector = ConnectorMap.get(connection)
+                .getConnector(invocation.getConnectorId());
+        FakeParentConnector fakeParent = (FakeParentConnector) connector
+                .getParent();
+        Element element = fakeParent.getWidget().getElement();
 
         element.dispatchEvent(event);
     }

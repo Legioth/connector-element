@@ -27,9 +27,6 @@ import elemental.json.JsonValue;
 public class ConnectorElement extends Element {
     public static final boolean debug = false;
 
-    private static final String parentConnectorId = "1";
-    private static final String connectorId = "2";
-
     private class PropertyHandler {
         private String name;
 
@@ -61,30 +58,28 @@ public class ConnectorElement extends Element {
             }
         }
 
-        findFakeParent().setChild(connector);
+        FakeApplicationConnection connection = FakeApplicationConnection.get();
+
+        FakeParentConnector fakeParent = new FakeParentConnector(this);
+
+        connection.registerAndInit(fakeParent);
+
+        fakeParent.setChild(connector);
 
         connector.fireEvent(new StateChangeEvent(connector, null, true));
     }
 
     private ComponentConnector createConnector() throws NoDataException {
+        FakeApplicationConnection connection = FakeApplicationConnection.get();
+
         String connectorClass = getAttribute("connector");
-        ApplicationConnection connection = new ApplicationConnection();
-        ((EventServerRpcQueue) connection.getServerRpcQueue())
-                .setTargetElement(this);
 
-        ConnectorMap connectorMap = getConnectorMap(connection);
-
-        LayoutManager.get(connection).setConnection(connection);
-        FakeParentConnector fakeParent = new FakeParentConnector(this);
-        connectorMap.registerConnector(parentConnectorId, fakeParent);
-        fakeParent.doInit(parentConnectorId, connection);
         Type type = TypeData.getType(TypeData.getClass(connectorClass));
         ComponentConnector connector = (ComponentConnector) type
                 .createInstance();
         setConnector(connector);
 
-        connectorMap.registerConnector(connectorId, connector);
-        connector.doInit(connectorId, connection);
+        connection.registerAndInit(connector);
 
         /*
          * Must do this before adding property listeners, since otherwise
@@ -151,10 +146,6 @@ public class ConnectorElement extends Element {
         });
     }-*/;
 
-    private FakeParentConnector findFakeParent() {
-        return (FakeParentConnector) getConnector().getConnection()
-                .getConnector(parentConnectorId, -1);
-    }
 
     private void updateFullState(ComponentConnector connector)
             throws NoDataException {
