@@ -1,7 +1,6 @@
 package com.github.legioth.connectorelement.client;
 
 import com.google.gwt.dom.client.Element;
-import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.ConnectorMap;
 import com.vaadin.client.ServerConnector;
 import com.vaadin.client.communication.JsonEncoder;
