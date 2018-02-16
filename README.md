@@ -27,8 +27,11 @@ This function expects three parameters:
 2. The name of the RPC method, e.g. `play`.
 3. A JavaScript array with arguments to the RPC method.
 
+### Children
+If the connector implements `HasComponentsConnector`, its widget will be attached inside a shadow root.
+Each light-dom child element will be assigned to its own `<slot>`, for which there will be a corresponding child connector attached to the connector of the `<connector-element>`.
+
 ## Known limitations
-* No child connector support
 * `LayoutManager` functionality is not properly integrated
 * Only supports connectors with `LoadStyle.EAGER` (which is the default).
 * Only reacts to property changes but no attribute changes

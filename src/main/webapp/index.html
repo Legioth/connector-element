@@ -15,7 +15,9 @@ connector-element {
   <connector-element connector="com.vaadin.ui.Label" content-mode="HTML" text="<i>See the HTML of this page to understand what this is about.</i>"></connector-element>
 
   <connector-element id="myButton" connector="com.vaadin.ui.Button" caption="Click me!"></connector-element>
-	
+  
+  <connector-element connector="com.vaadin.ui.Panel"><div>Panel content</div></connector-element>
+  
   <script type="text/javascript">
     document.getElementById('myButton').addEventListener("rpc",
       function(event) {

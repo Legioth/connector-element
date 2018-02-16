@@ -36,12 +36,21 @@ public class FakeParentConnector
 
     private FakeParentWidget widget;
 
-    public FakeParentConnector(Element element) {
+    public FakeParentConnector(Element element, boolean useShadowRoot) {
+        if (useShadowRoot) {
+            element = wrapInShadowRoot(element);
+        }
+
         widget = new FakeParentWidget(element);
 
         // Mark as attached
         widget.onAttach();
     }
+
+    private static native Element wrapInShadowRoot(Element element)
+    /*-{
+        return element.attachShadow({mode: 'open'}); 
+    }-*/;
 
     @Override
     public void updateCaption(ComponentConnector connector) {

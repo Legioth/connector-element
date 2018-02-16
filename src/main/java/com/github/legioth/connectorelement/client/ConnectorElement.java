@@ -1,9 +1,17 @@
 package com.github.legioth.connectorelement.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style.Display;
 import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.ComponentConnector;
+import com.vaadin.client.ConnectorHierarchyChangeEvent;
 import com.vaadin.client.ConnectorMap;
+import com.vaadin.client.HasComponentsConnector;
 import com.vaadin.client.JsArrayObject;
 import com.vaadin.client.Util;
 import com.vaadin.client.communication.JsonDecoder;
@@ -59,13 +67,85 @@ public class ConnectorElement extends Element {
 
         FakeApplicationConnection connection = FakeApplicationConnection.get();
 
-        FakeParentConnector fakeParent = new FakeParentConnector(this);
+        boolean isChildContainer = connector instanceof HasComponentsConnector;
+        FakeParentConnector fakeParent = new FakeParentConnector(this,
+                isChildContainer);
+
+        if (isChildContainer) {
+            // Collects children not assigned anywhere else
+            Slot defaultSlot = Slot.create(null);
+
+            // Don't show text nodes that won't be distributed
+            defaultSlot.getStyle().setDisplay(Display.NONE);
+
+            defaultSlot.addSlotChangeHandler(() -> {
+                // Update children if there's something to distribute
+                if (defaultSlot.getAssignedNodes().length > 0) {
+                    updateChildren();
+                }
+            });
+
+            fakeParent.getWidget().getElement().appendChild(defaultSlot);
+        }
 
         connection.registerAndInit(fakeParent);
 
         fakeParent.setChild(connector);
 
         connector.fireEvent(new StateChangeEvent(connector, null, true));
+    }
+
+    private void updateChildren() {
+        HasComponentsConnector hasComponentsConnector = (HasComponentsConnector) getConnector();
+
+        List<ComponentConnector> oldChildren = hasComponentsConnector
+                .getChildComponents();
+        List<ComponentConnector> children = new ArrayList<>();
+
+        NodeList<Node> childNodes = getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.getItem(i);
+
+            // Ignore text nodes since we can't assign them to slots
+            if (!Element.is(childNode)) {
+                continue;
+            }
+
+            Slot assignedSlot = Slot.getAssignedSlot(childNode);
+            String slotName = assignedSlot.getAttribute("name");
+
+            // Assigned to default slot -> this is a new child
+            if (slotName == null || slotName.equals("")) {
+                FakeChildConnector fakeChild = new FakeChildConnector(
+                        childNode);
+
+                Slot childSlot = fakeChild.getSlot();
+
+                childSlot.addSlotChangeHandler(() -> {
+                    // Update children if child slot has become empty
+                    if (childSlot.getAssignedNodes().length == 0) {
+                        updateChildren();
+                    }
+                });
+
+                children.add(fakeChild);
+            } else {
+                FakeChildConnector fakeChild = FakeChildConnector
+                        .get(assignedSlot);
+
+                children.add(fakeChild);
+            }
+        }
+
+        if (!oldChildren.equals(children)) {
+            ConnectorHierarchyChangeEvent event = new ConnectorHierarchyChangeEvent();
+            event.setConnector(hasComponentsConnector);
+            event.setOldChildren(new ArrayList<>(oldChildren));
+
+            hasComponentsConnector.setChildComponents(children);
+            hasComponentsConnector.setChildren(new ArrayList<>(children));
+            hasComponentsConnector.fireEvent(event);
+        }
     }
 
     private ComponentConnector createConnector() throws NoDataException {
