@@ -5,7 +5,6 @@ import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.ComponentConnector;
 import com.vaadin.client.ConnectorMap;
 import com.vaadin.client.JsArrayObject;
-import com.vaadin.client.LayoutManager;
 import com.vaadin.client.Util;
 import com.vaadin.client.communication.JsonDecoder;
 import com.vaadin.client.communication.JsonEncoder;
@@ -193,7 +192,7 @@ public class ConnectorElement extends Element {
     public final static native boolean hasProperty(ConnectorElement self,
             String name)
     /*-{
-        return name in self;
+        return self.hasOwnProperty(name);
     }-*/;
 
     private static native final ConnectorMap getConnectorMap(
